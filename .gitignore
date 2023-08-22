@@ -10,3 +10,8 @@
 build/
 .vscode/settings.json
 .tox/
+
+.idea/
+
+# Output temp
+md.md
