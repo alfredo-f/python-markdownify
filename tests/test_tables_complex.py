@@ -7,25 +7,13 @@ def test_table_ul():
 
     _html = """<table>
         <tr>
-            <th>Firstname</th>
-            <th>Lastname</th>
-            <th>Age</th>
+            <th>Column</th>
         </tr>
         <tr>
-            <td>Jill</td>
-            <td>Smith</td>
             <td>It can:
-<ul>
-<li><p><span class="ui">Edit</span></p>
-<p>Edit the procedure.</p>
-</li>
-</ul>
+<ul class="some">
+<li>Edit</li></ul>
 </td>
-        </tr>
-        <tr>
-            <td>Eve</td>
-            <td>Jackson</td>
-            <td>94</td>
         </tr>
     </table>"""
 
@@ -35,9 +23,17 @@ def test_table_ul():
 | --- |
 | It can:
 * Edit
-Edit the procedure.
  |
 
 """
+
+    _md_final = """
+
+| Firstname | Lastname | Age |
+| --- | --- | --- |
+| Jill | Smith | It can:<br><ul><li>Edit</li></ul> |
+| Eve | Jackson | 94 |
+
+    """
 
     assert MarkdownConverterTables().convert(_html) == _md

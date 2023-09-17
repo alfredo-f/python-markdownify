@@ -51,11 +51,23 @@ def test_b_spaces():
 
 
 def test_blockquote():
-    assert md('<blockquote>Hello</blockquote>') == '\n> Hello\n\n'
+    assert md('<blockquote>Hello</blockquote>') == (
+        '''
+> Hello
+
+'''
+    )
 
 
 def test_blockquote_with_paragraph():
-    assert md('<blockquote>Hello</blockquote><p>handsome</p>') == '\n> Hello\n\nhandsome\n\n'
+    assert md('<blockquote>Hello</blockquote><p>handsome</p>') == (
+        '''
+> Hello
+
+handsome
+
+'''
+    )
 
 
 def test_blockquote_nested():
