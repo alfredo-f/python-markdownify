@@ -33,6 +33,14 @@ TAGS_IGNORE_WHEN_CONVERTING_TEXT = [
     "tbody",
 ]
 
+TAGS_DONT_SURROUND_WITH_NAME = [
+    "a",
+    "b",
+    "strong",
+    "i",
+    "p",
+]
+
 
 def chomp(text):
     """
@@ -449,6 +457,7 @@ def process_tag(
     convert_as_inline,
     options,
     children_only=False,
+    surround_with_tag_name=False,
 ):
     text = ''
 
@@ -643,6 +652,12 @@ def process_tag(
                 options=options,
             )
 
+    if (
+        surround_with_tag_name
+        and node.name not in TAGS_DONT_SURROUND_WITH_NAME
+    ):
+        text = '<%s>%s</%s>' % (node.name, text, node.name)
+
     return text
 
 
@@ -727,6 +742,12 @@ def process_tag_table(
                 node=node,
                 convert_as_inline=True,
                 options=options,
+                surround_with_tag_name=True,
+            )
+
+            text = text.replace(
+                "\n",
+                "<br>",
             )
 
     return text

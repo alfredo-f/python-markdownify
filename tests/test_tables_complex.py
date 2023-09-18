@@ -22,17 +22,15 @@ def test_table_ul():
 | Column |
 | --- |
 | It can:
-* Edit
- |
+<ul>* Edit<br></ul> |
 
 """
 
     _md_final = """
 
-| Firstname | Lastname | Age |
-| --- | --- | --- |
-| Jill | Smith | It can:<br><ul><li>Edit</li></ul> |
-| Eve | Jackson | 94 |
+| Column |
+| --- |
+| It can:<br><ul class="some"><li>Edit</li></ul> |
 
     """
 
