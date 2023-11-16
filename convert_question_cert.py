@@ -1,10 +1,8 @@
 def main():
 
-    pasted_from_excel = """What versions of Snowflake should be used to manage compliance with Personal Identifiable Information (PII) requirements? (Choose two.)	Business Critical Edition
-What versions of Snowflake should be used to manage compliance with Personal Identifiable Information (PII) requirements? (Choose two.)	Custom Edition
-What versions of Snowflake should be used to manage compliance with Personal Identifiable Information (PII) requirements? (Choose two.)	Enterprise Edition
-What versions of Snowflake should be used to manage compliance with Personal Identifiable Information (PII) requirements? (Choose two.)	Virtual Private Snowflake
-What versions of Snowflake should be used to manage compliance with Personal Identifiable Information (PII) requirements? (Choose two.)	Standard Edition
+    pasted_from_excel = """What do the terms scale up and scale out refer to in Snowflake? (Choose two.)	Scaling up adds additional database servers to an existing running cluster to handle larger workloads.
+What do the terms scale up and scale out refer to in Snowflake? (Choose two.)	Scaling out adds additional database servers to an existing running cluster to handle more concurrent queries.
+What do the terms scale up and scale out refer to in Snowflake? (Choose two.)	Snowflake recommends using both scaling up and scaling out to handle more concurrent queries.
 """
 
     lines = [
