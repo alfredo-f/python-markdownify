@@ -132,13 +132,33 @@ Add a reader instance to the Aurora cluster. Create a custom ANY endpoint for th
     print("\n" * 10 + "Without intro: " + "\n" * 10)
     print(question_all)
 
-    print("\n" * 10 + "With intro: " + "\n" * 10)
-    print("In Snowflake, " + question_all[0].lower() + question_all[1:])
+    print("\n" * 10 + "Analyze single" + "\n" * 10)
+    print("""\
+You are analyzing the following AWS DevOps Engineer exam question:
+
+```
+""" + question_text + """
+```
+
+One of the options is
+
+```
+A. """
++ lines_answers[0] + """
+```
+
+Find information on the internet to evaluate whether the option is correct or incorrect.""")
+
+    prefix_how_many_correct = {
+        4: "one option",
+        5: "two options",
+        6: "three options",
+    }[len(answers)]
 
     print("\n" * 10 + "With prefix and suffix: " + "\n" * 10)
     print(
-        """# Your task
-Reason step by step before choosing ONLY one option as correct.
+        f"""# Your task
+Reason step by step before choosing ONLY {prefix_how_many_correct} as correct.
 
 # AWS DevOps Engineer exam question
 """ + question_all)
