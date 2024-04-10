@@ -150,6 +150,8 @@ A. """
 Find information on the internet to evaluate whether the option is correct or incorrect.""")
 
     prefix_how_many_correct = {
+        2: "one option",
+        3: "one option",
         4: "one option",
         5: "two options",
         6: "three options",
