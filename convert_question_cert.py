@@ -157,10 +157,16 @@ Find information on the internet to evaluate whether the option is correct or in
         6: "three options",
     }[len(answers)]
 
+    print("\n" * 10 + "Gemini with documentation: " + "\n" * 10)
+    print(
+        question_all + "\n\n" +
+        f"""# Your task
+Make use of the documentation you have been provided to reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.""")
+
     print("\n" * 10 + "With prefix and suffix: " + "\n" * 10)
     print(
         f"""# Your task
-Reason step by step before choosing ONLY {prefix_how_many_correct} as correct.
+Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.
 
 # AWS DevOps Engineer exam question
 """ + question_all)
