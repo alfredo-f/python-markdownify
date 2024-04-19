@@ -1,6 +1,96 @@
+from dataclasses import dataclass
+from time import sleep
+
 import pandas as pd
 
 from pathlib import Path
+
+
+def configure_pandas(
+    pandas,
+    infinite_rows: bool = False,
+    additional_params: bool = False
+):  # pragma: no cover
+    """Configure Pandas module.
+
+    Args:
+        pandas: Pandas module
+            where to apply the configuration.
+        infinite_rows (bool): Whether to configure Pandas
+            to display all rows.
+        additional_params (bool): Whether to configure Pandas
+            to display wider and justified columns.
+
+    Returns:
+
+    """
+    pandas.set_option("display.expand_frame_repr", False)
+    pandas.options.display.width = 0
+    pandas.set_option("display.max_columns", None)
+    pandas.options.display.float_format = "{:,.2f}".format
+
+    if infinite_rows:
+        pandas.set_option("display.max_rows", None)
+
+    if additional_params:
+        pandas.set_option("display.max_colwidth", 100)
+        pandas.set_option("display.column_space", 40)
+        pandas.set_option("display.colheader_justify", "left")
+
+
+configure_pandas(pd)
+
+
+@dataclass
+class Question:
+    question_text: str
+    answers_pasted_from_excel: str
+    answer_correct: str
+
+PATH_PICKLE = r"C:\Users\a.fomitchenko\deleteme2\df_most_difficult.pkl"
+
+while True:
+    try:
+        df = pd.read_excel(
+            r"C:\Users\a.fomitchenko\Certifications\reply_certifications__aws_devops_engineer\Exams AWS DevOps Engineer.xlsx",
+            sheet_name="Sheet1",
+        )
+        break
+    except:
+        print("Is the file open?")
+        df = pd.read_pickle(
+            PATH_PICKLE,
+        )
+        sleep(10)
+
+df_most_difficult = df[
+    df["Source"] == "MOLTO DIFFICILE PER LLM"
+]
+
+df_most_difficult.to_pickle(PATH_PICKLE)
+
+print(df)
+
+#df_most_difficult
+#     Temporarily hidden (used for black conditional formatting rule)  Random single  Random question     ID  which_certification_preparation                   Source difficulty_label  Present in exam  Category                                           Question                                            Answers  Correct (1)  Unnamed: 12  False  Correct  Space                                        Explanation
+
+QUESTIONS_MOST_DIFFICULT = []
+
+for _id in df_most_difficult["ID"]:
+    rows = df_most_difficult[df_most_difficult["ID"] == _id]
+    question_text = rows["Question"].iloc[0]
+    answers_pasted_from_excel = "\n".join(
+        rows["Answers"].iloc[0].split("\n")[1:]
+    )
+    answer_correct = rows["Correct (1)"].iloc[0]
+
+    QUESTIONS_MOST_DIFFICULT.append(
+        Question(
+            question_text=question_text,
+            answers_pasted_from_excel=answers_pasted_from_excel,
+            answer_correct=answer_correct,
+        )
+    )
 
 
 def convert_from_pasted(
@@ -55,15 +145,8 @@ Which additional set of actions should the DevOps engineer take to gather the re
             for _line in lines
         ]
 
-    elif split_by_character == "\"":
-        pasted_from_excel
-
-        answers = None
-
     else:
         raise ValueError(split_by_character)
-
-
 
     answers = [
         f"{chr(ord('A') + i)}. {_answer}"
@@ -94,18 +177,11 @@ def convert_from_excel_file(
     print(df_question)
 
 
-def convert_from_question_and_answers():
-    question_text = """"A company is using an Amazon Aurora cluster as the data store for its application. The Aurora cluster is configured with a single DB instance. The application performs read and write operations on the database by using the cluster's instance endpoint.
-The company has scheduled an update to be applied to the cluster during an upcoming maintenance window. The cluster must remain available with the least possible interruption during the maintenance window.
-What should a DevOps engineer do to meet these requirements?"
-"""
-
-    answers_pasted_from_excel = """Turn on the Multi-AZ option on the Aurora cluster. Update the application to use the Aurora cluster endpoint for write operations. Update the Aurora cluster’s reader endpoint for reads.
-Add a reader instance to the Aurora cluster. Update the application to use the Aurora cluster endpoint for write operations. Update the Aurora cluster's reader endpoint for reads.
-Turn on the Multi-AZ option on the Aurora cluster. Create a custom ANY endpoint for the cluster. Update the application to use the Aurora cluster's custom ANY endpoint for read and write operations
-Add a reader instance to the Aurora cluster. Create a custom ANY endpoint for the cluster. Update the application to use the Aurora cluster's custom ANY endpoint for read and write operations.
-"""
-
+def convert_from_question_and_answers(
+    question_text: str,
+    answers_pasted_from_excel: str,
+    only_final: bool = False,
+):
     question_text = question_text.replace("\"", "").strip()
 
     lines_answers = [
@@ -129,13 +205,22 @@ Add a reader instance to the Aurora cluster. Create a custom ANY endpoint for th
 
     question_all = question_text + "\n\n" + "\n".join(answers)
 
-    print("\n" * 10 + "Without intro: " + "\n" * 10)
-    print(question_all)
+    prefix_how_many_correct = {
+        2: "one option",
+        3: "one option",
+        4: "one option",
+        5: "two options",
+        6: "three options",
+    }[len(answers)]
 
-    print("\n" * 10 + "Analyze single" + "\n" * 10)
-    print("""\
+    if not only_final:
+        print("\n" * 10 + "Without intro: " + "\n" * 10)
+        print(question_all)
+
+        print("\n" * 10 + "Analyze single" + "\n" * 10)
+        print("""\
 You are analyzing the following AWS DevOps Engineer exam question:
-
+    
 ```
 """ + question_text + """
 ```
@@ -149,18 +234,19 @@ A. """
 
 Find information on the internet to evaluate whether the option is correct or incorrect.""")
 
-    prefix_how_many_correct = {
-        2: "one option",
-        3: "one option",
-        4: "one option",
-        5: "two options",
-        6: "three options",
-    }[len(answers)]
+        print("\n" * 10 + "Mistral large: " + "\n" * 10)
+        print(
+        f"""<s>[INST]# Your task
+Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.
 
-    print("\n" * 10 + "Gemini with documentation: " + "\n" * 10)
-    print(
-        question_all + "\n\n" +
-        f"""# Your task
+# AWS DevOps Engineer exam question
+""" + question_all
+        + "[/INST]")
+
+        print("\n" * 10 + "Gemini with documentation: " + "\n" * 10)
+        print(
+            question_all + "\n\n" +
+            f"""# Your task
 Make use of the documentation you have been provided to reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.""")
 
     print("\n" * 10 + "With prefix and suffix: " + "\n" * 10)
@@ -173,4 +259,21 @@ Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct
 
 
 if __name__ == '__main__':
-    convert_from_question_and_answers()
+    
+    convert_from_question_and_answers(
+        question_text="""A company hired a penetration tester to simulate an internal security breach. The tester performed port scans on the company's Amazon EC2 instances. The company's security measures did not detect the port scans.
+
+The company needs a solution that automatically provides notification when port scans are performed on EC2 instances. The company creates and subscribes to an Amazon Simple Notification Service (Amazon SNS) topic.
+
+What should the company do next to meet the requirement?""",
+        answers_pasted_from_excel="""Ensure that Amazon Inspector is enabled. Create an Amazon EventBridge event for detected CVEs that cause open port vulnerabilities. Connect the event to the SNS topic.
+Ensure that Amazon GuardDuty is enabled. Create an Amazon CloudWatch alarm for detected EC2 and port scan findings. Connect the alarm to the SNS topic.
+Ensure that AWS CloudTrail is enabled. Create an AWS Lambda function to analyze the CloudTrail logs for unusual amounts of traffic from an IP address range. Connect the Lambda function to the SNS topic.
+Ensure that Amazon Inspector is enabled. Create an Amazon EventBridge event for detected network reachability findings that indicate port scans. Connect the event to the SNS topic.
+""",
+    )
+
+    # Most difficult IDs: 46, 49, 51, 54, 57, 66, 138, 146
+    # Qwen 1.5 Chat (72B)
+    # t=0.44, top-p=0.7, top-k=50
+    # : 5 / 8

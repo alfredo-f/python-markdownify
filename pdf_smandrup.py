@@ -1,14 +1,13 @@
 import PyPDF2
 
 
-def delete_ranges(
+def filter_pdf_file(
     input_path,
     output_path,
     ranges_to_keep = None,
     ranges_to_delete = None,
 ):
-    ranges_to_keep = ranges_to_keep or []
-    ranges_to_delete = ranges_to_delete or []
+    assert (ranges_to_keep is not None) != (ranges_to_delete is not None)
 
     # Open the existing PDF
     reader = PyPDF2.PdfReader(input_path)
@@ -17,7 +16,26 @@ def delete_ranges(
     # Calculate the total number of pages
     num_pages = len(reader.pages)
 
-    # ...
+    # Iterate through all pages
+    for page_num in range(num_pages):
+        if ranges_to_keep is not None:
+            # Check if the page is in the range to keep
+            if any(
+                start <= page_num + 1 <= end
+                for start, end in ranges_to_keep
+            ):
+                writer.add_page(reader.pages[page_num])
+
+        elif ranges_to_delete is not None:
+            # Check if the page is in the range to delete
+            if not any(
+                start <= page_num + 1 <= end
+                for start, end in ranges_to_delete
+            ):
+                writer.add_page(reader.pages[page_num])
+
+        else:
+            raise ValueError(ranges_to_keep, ranges_to_delete)
 
     # Write out the new PDF
     with open(output_path, "wb") as output_pdf:
@@ -25,10 +43,27 @@ def delete_ranges(
 
 
 def main():
-    delete_ranges(
-        input_path=r"C:\Users\a.fomitchenko\AWS documentation\raw\AWS CloudWatch.pdf",
-        output_path=r"C:\Users\a.fomitchenko\AWS documentation\AWS CloudWatch - Agent.pdf",
-        ranges_to_keep=[(137, 326), (1733, 1951)],
+    # AWS Control Tower
+    # ranges_to_delete=[
+    #             (3, 32),  # Table of contents
+    #             (425, 2324),
+    #             (2541, 8208),
+    #         ],
+
+    # API Gateway
+    # ranges_to_delete=[
+    #   # Working with REST APIs
+
+
+    filter_pdf_file(
+        input_path=r"C:\Users\a.fomitchenko\AWS documentation\raw\AWS Control Tower - all.pdf",
+        output_path=r"C:\Users\a.fomitchenko\AWS documentation\AWS Control Tower.pdf",
+        # ranges_to_keep=[(1, 2540)],
+        ranges_to_delete=[
+            (3, 32),  # Table of contents
+            (425, 2324),
+            (2541, 8208),
+        ],
     )
 
 
