@@ -247,7 +247,7 @@ Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct
         print(
             question_all + "\n\n" +
             f"""# Your task
-Make use of the documentation you have been provided to reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.""")
+You MUST QUOTE DIRECTLY from the provided documentation, then reason step by step and choose EXACTLY {prefix_how_many_correct} as correct.""")
 
     print("\n" * 10 + "With prefix and suffix: " + "\n" * 10)
     print(
