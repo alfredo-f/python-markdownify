@@ -47,50 +47,52 @@ class Question:
     answers_pasted_from_excel: str
     answer_correct: str
 
-PATH_PICKLE = r"C:\Users\a.fomitchenko\deleteme2\df_most_difficult.pkl"
 
-while True:
-    try:
-        df = pd.read_excel(
-            r"C:\Users\a.fomitchenko\Certifications\reply_certifications__aws_devops_engineer\Exams AWS DevOps Engineer.xlsx",
-            sheet_name="Sheet1",
+def load_most_difficult():
+    PATH_PICKLE = r"C:\Users\a.fomitchenko\deleteme2\df_most_difficult.pkl"
+
+    while True:
+        try:
+            df = pd.read_excel(
+                r"C:\Users\a.fomitchenko\Certifications\reply_certifications__aws_devops_engineer\Exams AWS DevOps Engineer.xlsx",
+                sheet_name="Sheet1",
+            )
+            break
+        except:
+            print("Is the file open?")
+            df = pd.read_pickle(
+                PATH_PICKLE,
+            )
+            sleep(10)
+
+    df_most_difficult = df[
+        df["Source"] == "MOLTO DIFFICILE PER LLM"
+        ]
+
+    df_most_difficult.to_pickle(PATH_PICKLE)
+
+    print(df)
+
+    # df_most_difficult
+    #     Temporarily hidden (used for black conditional formatting rule)  Random single  Random question     ID  which_certification_preparation                   Source difficulty_label  Present in exam  Category                                           Question                                            Answers  Correct (1)  Unnamed: 12  False  Correct  Space                                        Explanation
+
+    QUESTIONS_MOST_DIFFICULT = []
+
+    for _id in df_most_difficult["ID"]:
+        rows = df_most_difficult[df_most_difficult["ID"] == _id]
+        question_text = rows["Question"].iloc[0]
+        answers_pasted_from_excel = "\n".join(
+            rows["Answers"].iloc[0].split("\n")[1:]
         )
-        break
-    except:
-        print("Is the file open?")
-        df = pd.read_pickle(
-            PATH_PICKLE,
+        answer_correct = rows["Correct (1)"].iloc[0]
+
+        QUESTIONS_MOST_DIFFICULT.append(
+            Question(
+                question_text=question_text,
+                answers_pasted_from_excel=answers_pasted_from_excel,
+                answer_correct=answer_correct,
+            )
         )
-        sleep(10)
-
-df_most_difficult = df[
-    df["Source"] == "MOLTO DIFFICILE PER LLM"
-]
-
-df_most_difficult.to_pickle(PATH_PICKLE)
-
-print(df)
-
-#df_most_difficult
-#     Temporarily hidden (used for black conditional formatting rule)  Random single  Random question     ID  which_certification_preparation                   Source difficulty_label  Present in exam  Category                                           Question                                            Answers  Correct (1)  Unnamed: 12  False  Correct  Space                                        Explanation
-
-QUESTIONS_MOST_DIFFICULT = []
-
-for _id in df_most_difficult["ID"]:
-    rows = df_most_difficult[df_most_difficult["ID"] == _id]
-    question_text = rows["Question"].iloc[0]
-    answers_pasted_from_excel = "\n".join(
-        rows["Answers"].iloc[0].split("\n")[1:]
-    )
-    answer_correct = rows["Correct (1)"].iloc[0]
-
-    QUESTIONS_MOST_DIFFICULT.append(
-        Question(
-            question_text=question_text,
-            answers_pasted_from_excel=answers_pasted_from_excel,
-            answer_correct=answer_correct,
-        )
-    )
 
 
 def convert_from_pasted(
@@ -178,6 +180,7 @@ def convert_from_excel_file(
 
 
 def convert_from_question_and_answers(
+    exam_name: str,
     question_text: str,
     answers_pasted_from_excel: str,
     only_final: bool = False,
@@ -219,7 +222,7 @@ def convert_from_question_and_answers(
 
         print("\n" * 10 + "Analyze single" + "\n" * 10)
         print("""\
-You are analyzing the following AWS DevOps Engineer exam question:
+You are analyzing the following {exam_name exam question:
     
 ```
 """ + question_text + """
@@ -239,7 +242,7 @@ Find information on the internet to evaluate whether the option is correct or in
         f"""<s>[INST]# Your task
 Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.
 
-# AWS DevOps Engineer exam question
+# {exam_name} exam question
 """ + question_all
         + "[/INST]")
 
@@ -254,22 +257,23 @@ You MUST QUOTE DIRECTLY from the provided documentation, then reason step by ste
         f"""# Your task
 Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.
 
-# AWS DevOps Engineer exam question
+# {exam_name} exam question
 """ + question_all)
 
 
 if __name__ == '__main__':
     
     convert_from_question_and_answers(
-        question_text="""A company hired a penetration tester to simulate an internal security breach. The tester performed port scans on the company's Amazon EC2 instances. The company's security measures did not detect the port scans.
+        exam_name="AWS Machine Learning Specialty",
+        question_text="""A company runs applications in an Amazon Elastic Kubernetes Service (Amazon EKS) cluster. The EKS cluster uses an Application Load Balancer to route traffic to the applications that run in the cluster.
 
-The company needs a solution that automatically provides notification when port scans are performed on EC2 instances. The company creates and subscribes to an Amazon Simple Notification Service (Amazon SNS) topic.
+A new application that was migrated to the EKS cluster is performing poorly. All the other applications in the EKS cluster maintain appropriate operation. The new application scales out horizontally to the preconfigured maximum number of pods immediately upon deployment, before any user traffic routes to the web application.
 
-What should the company do next to meet the requirement?""",
-        answers_pasted_from_excel="""Ensure that Amazon Inspector is enabled. Create an Amazon EventBridge event for detected CVEs that cause open port vulnerabilities. Connect the event to the SNS topic.
-Ensure that Amazon GuardDuty is enabled. Create an Amazon CloudWatch alarm for detected EC2 and port scan findings. Connect the alarm to the SNS topic.
-Ensure that AWS CloudTrail is enabled. Create an AWS Lambda function to analyze the CloudTrail logs for unusual amounts of traffic from an IP address range. Connect the Lambda function to the SNS topic.
-Ensure that Amazon Inspector is enabled. Create an Amazon EventBridge event for detected network reachability findings that indicate port scans. Connect the event to the SNS topic.
+Which solution will resolve the scaling behavior of the web application in the EKS cluster?""",
+        answers_pasted_from_excel="""Implement the Vertical Pod Autoscaler in the EKS cluster.
+Implement the AWS Load Balancer Controller in the EKS cluster.
+Implement the Cluster Autoscaler.
+Implement the Horizontal Pod Autoscaler in the EKS cluster.
 """,
     )
 
