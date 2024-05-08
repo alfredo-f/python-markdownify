@@ -184,6 +184,7 @@ def convert_from_question_and_answers(
     question_text: str,
     answers_pasted_from_excel: str,
     only_final: bool = False,
+    accept_quotes_in_answers_pasted: bool = False,
 ):
     question_text = question_text.replace("\"", "").strip()
 
@@ -193,13 +194,14 @@ def convert_from_question_and_answers(
         if len(_line.strip()) > 0
     ]
 
-    lines_unexpected = [
-        _line
-        for _line in lines_answers
-        if "\"" in _line
-    ]
-    if len(lines_unexpected) > 0:
-        raise ValueError(f"Unexpected lines: {lines_unexpected}")
+    if not accept_quotes_in_answers_pasted:
+        lines_unexpected = [
+            _line
+            for _line in lines_answers
+            if "\"" in _line
+        ]
+        if len(lines_unexpected) > 0:
+            raise ValueError(f"Unexpected lines: {lines_unexpected}")
 
     answers = [
         f"{chr(ord('A') + i)}. {_answer}"
