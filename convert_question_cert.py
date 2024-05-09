@@ -266,7 +266,7 @@ Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct
 if __name__ == '__main__':
     
     convert_from_question_and_answers(
-        exam_name="AWS Machine Learning Specialty",
+        exam_name="AWS DevOps Engineer",
         question_text="""A company runs applications in an Amazon Elastic Kubernetes Service (Amazon EKS) cluster. The EKS cluster uses an Application Load Balancer to route traffic to the applications that run in the cluster.
 
 A new application that was migrated to the EKS cluster is performing poorly. All the other applications in the EKS cluster maintain appropriate operation. The new application scales out horizontally to the preconfigured maximum number of pods immediately upon deployment, before any user traffic routes to the web application.
