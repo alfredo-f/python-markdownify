@@ -254,6 +254,55 @@ Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct
             f"""# Your task
 You MUST QUOTE DIRECTLY from the provided documentation, then reason step by step and choose EXACTLY {prefix_how_many_correct} as correct.""")
 
+    print("\n" * 10 + "Study topics: " + "\n" * 10)
+    print(
+        f"""# Your task
+Based on the following {exam_name} exam question, extract which topics I should research. DON'T suggest basic topics, this is an advanced question, so you should focus on the nooks and crannies.
+
+# {exam_name} exam question
+""" + question_all)
+
+    print("\n" * 10 + "More structured: " + "\n" * 10)
+    print(
+        f"""You are tasked with answering the following {exam_name} exam question.
+
+Explain for each answer why it is "correct" or "incorrect". VERY IMPORTANT: there MUST be EXACTLY {prefix_how_many_correct} as correct, all others MUST be incorrect.
+
+
+
+
+
+
+
+The format of what you write is the following
+
+<assistant_reply>
+
+### Section where all answers are evaluated
+Answer A: [explanation and reasoning step-by-step]
+Answer B: [explanation and reasoning step-by-step]
+...
+
+### Evaluation based on previous explanations
+- Answer A: [summary of explanation and reasoning step-by-step]. Therefore, the answer is [correct/incorrect]
+- Answer B: [summary of explanation and reasoning step-by-step]. Therefore, the answer is [correct/incorrect]
+...
+
+</assistant_reply>
+
+
+
+
+
+
+
+
+This is the {exam_name} exam question:
+
+{question_all}
+"""
+    )
+
     print("\n" * 10 + "With prefix and suffix: " + "\n" * 10)
     print(
         f"""# Your task
