@@ -178,6 +178,19 @@ def convert_from_excel_file(
 
     print(df_question)
 
+    assert df_question["Question"].nunique() == 1, "Multiple questions found"
+    assert not df_question["Answers"].str.contains("\n").any(), "No answer can contain \\n"
+
+    question_text = df_question["Question"].iloc[0]
+    answers_pasted_from_excel = "\n".join(
+        df_question["Answers"]
+    )
+    assert len(answers_pasted_from_excel.split("\n")) == len(df_question["Answers"]), "Something went wrong when joining with \\n"
+    return dict(
+        question_text=question_text,
+        answers_pasted_from_excel=answers_pasted_from_excel,
+    )
+
 
 def convert_from_question_and_answers(
     exam_name: str,
@@ -279,8 +292,8 @@ The format of what you write is the following
 <assistant_reply>
 
 ### Section where all answers are evaluated
-Answer A: [explanation and reasoning step-by-step]
-Answer B: [explanation and reasoning step-by-step]
+- Answer A: [explanation and reasoning step-by-step]
+- Answer B: [explanation and reasoning step-by-step]
 ...
 
 ### Evaluation based on previous explanations
@@ -303,30 +316,48 @@ This is the {exam_name} exam question:
 """
     )
 
-    print("\n" * 10 + "With prefix and suffix: " + "\n" * 10)
+    print("\n" * 10 + "Saving the lives of billions: " + "\n" * 10)
     print(
-        f"""# Your task
+        f"""# {exam_name} exam question
+{question_all}
+
+# Your task
+This is a mission-critical question, if you find the correct answer you will solve cancer and save the lives of billions of people worldwide. For this purpose, you are going to reason step by step thoroughly weighing pros and cons related to each option individually. Take into account the exact context and wording of the question, paying attention to all the possible nuances and peculiarities. After all of this, you gather all the reasoning and choose EXACTLY {prefix_how_many_correct} as correct.""")
+
+    print("\n" * 10 + "You are an expert: " + "\n" * 10)
+    you_are_an_expert = f"""# You
+You are an expert AWS Solutions Architect. You are the creator of the {exam_name} exam questions, so you have the exact knowledge and reasoning to find the correct options for the {exam_name} exam questions:
+- When you reason, you are logical and thorough
+- When you provide knowledge, you can factually recall any detail
+
+# Your task
 Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.
 
 # {exam_name} exam question
-""" + question_all)
+{question_all}"""
+    print(you_are_an_expert)
+
+    print("\n" * 10 + "With prefix and suffix: " + "\n" * 10)
+    with_prefix = f"""# Your task
+Reason step by step before choosing EXACTLY {prefix_how_many_correct} as correct.
+
+# {exam_name} exam question
+""" + question_all
+
+    print(with_prefix)
+    return you_are_an_expert
 
 
 if __name__ == '__main__':
-    
-    convert_from_question_and_answers(
+    question_prompt = convert_from_question_and_answers(
         exam_name="AWS DevOps Engineer",
-        question_text="""A company runs applications in an Amazon Elastic Kubernetes Service (Amazon EKS) cluster. The EKS cluster uses an Application Load Balancer to route traffic to the applications that run in the cluster.
-
-A new application that was migrated to the EKS cluster is performing poorly. All the other applications in the EKS cluster maintain appropriate operation. The new application scales out horizontally to the preconfigured maximum number of pods immediately upon deployment, before any user traffic routes to the web application.
-
-Which solution will resolve the scaling behavior of the web application in the EKS cluster?""",
-        answers_pasted_from_excel="""Implement the Vertical Pod Autoscaler in the EKS cluster.
-Implement the AWS Load Balancer Controller in the EKS cluster.
-Implement the Cluster Autoscaler.
-Implement the Horizontal Pod Autoscaler in the EKS cluster.
-""",
+        **convert_from_excel_file(
+            file_path=Path(r"C:\Users\a.fomitchenko\Certifications\reply_certifications__aws_devops_engineer\Exams AWS DevOps Engineer - Copy.xlsx"),
+            question_id=100,
+        )
     )
+
+    print(question_prompt)
 
     # Most difficult IDs: 46, 49, 51, 54, 57, 66, 138, 146
     # Qwen 1.5 Chat (72B)
